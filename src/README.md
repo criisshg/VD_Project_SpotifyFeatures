@@ -120,3 +120,35 @@ Els paràmetres principals són constants al capçal del fitxer:
 | `INFO_COLUMNS`      | `genre, artist_name, track_name, track_id`     | Columnes informatives (no s'escalen)            |
 | `FEATURE_COLUMNS`   | 11 features numèriques (vegeu sobre)           | Columnes que entren a PCA / t-SNE / clustering  |
 | `EXPECTED_RANGES`   | rangs teòrics per feature                      | Per a la validació de coherència (no retalla)   |
+
+# Análisis de Datos de Spotify - Proyecto de Visualización
+
+Este proyecto consiste en un pipeline completo de preparación de datos y análisis estadístico del dataset "Spotify Features", enfocado en la limpieza y la reducción de dimensionalidad para entender cómo se agrupan los géneros musicales.
+
+## 1. Preparación de Datos (Data Massage)
+Utilizamos el script `data_massage.py` para realizar una limpieza profunda del dataset original:
+* **Limpieza:** Eliminación de duplicados por `track_id` e imputación de valores nulos.
+* **Transformación:** Conversión de duraciones a minutos y filtrado de géneros minoritarios.
+* **Normalización:** Aplicación de `StandardScaler` para que todas las métricas (tempo, energía, acústica, etc.) tengan el mismo peso en el análisis.
+
+## 2. Reducción de Dimensionalidad (PCA)
+Para visualizar la "personalidad" de las canciones en un plano 2D, aplicamos **Análisis de Componentes Principales (PCA)** sobre 11 atributos numéricos.
+
+### Resultados del Análisis:
+* **PC1 (Eje X):** Explica el **33.23%** de la varianza.
+* **PC2 (Eje Y):** Explica el **16.23%** de la varianza.
+* **Total Retenido:** Logramos capturar casi el **50% (49.46%)** de la información original usando solo dos dimensiones.
+
+## 3. Visualización Final
+El siguiente gráfico muestra la proyección de las canciones en el nuevo hiperplano de PCA, coloreadas según su género musical.
+
+![Análisis PCA de Spotify](pca_spotify.png)
+
+*Interpretación: Se observa cómo ciertos géneros forman clústeres definidos (como la música clásica o acústica), mientras que los géneros comerciales tienden a solaparse en el centro del gráfico.*
+
+---
+## Cómo ejecutar el proyecto
+1. Clonar el repositorio.
+2. Crear un entorno virtual con Python 3.11/3.12.
+3. Instalar dependencias: `pip install pandas scikit-learn matplotlib seaborn`.
+4. Ejecutar el análisis: `python pca_analysis.py`.

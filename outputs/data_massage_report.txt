@@ -1,0 +1,150 @@
+============================================================
+INSPECCIÓ DEL DATASET
+============================================================
+
+Forma: 232725 files × 18 columnes
+
+Tipus de dades:
+genre                   str
+artist_name             str
+track_name              str
+track_id                str
+popularity            int64
+acousticness        float64
+danceability        float64
+duration_ms           int64
+energy              float64
+instrumentalness    float64
+key                     str
+liveness            float64
+loudness            float64
+mode                    str
+speechiness         float64
+tempo               float64
+time_signature          str
+valence             float64
+dtype: object
+
+Nuls per columna:
+genre               0
+artist_name         0
+track_name          1
+track_id            0
+popularity          0
+acousticness        0
+danceability        0
+duration_ms         0
+energy              0
+instrumentalness    0
+key                 0
+liveness            0
+loudness            0
+mode                0
+speechiness         0
+tempo               0
+time_signature      0
+valence             0
+dtype: int64
+
+Duplicats (fila sencera): 0
+Duplicats per track_id: 55951 (la mateixa cançó pot aparèixer en diversos gèneres)
+
+Estadístiques numèriques:
+       popularity  acousticness  danceability  duration_ms      energy  instrumentalness    liveness    loudness  speechiness       tempo     valence
+count  232725.000    232725.000    232725.000   232725.000  232725.000        232725.000  232725.000  232725.000   232725.000  232725.000  232725.000
+mean       41.128         0.369         0.554   235122.339       0.571             0.148       0.215      -9.570        0.121     117.667       0.455
+std        18.190         0.355         0.186   118935.909       0.263             0.303       0.198       5.998        0.186      30.899       0.260
+min         0.000         0.000         0.057    15387.000       0.000             0.000       0.010     -52.457        0.022      30.379       0.000
+25%        29.000         0.038         0.435   182857.000       0.385             0.000       0.097     -11.771        0.037      92.959       0.237
+50%        43.000         0.232         0.571   220427.000       0.605             0.000       0.128      -7.762        0.050     115.778       0.444
+75%        55.000         0.722         0.692   265768.000       0.787             0.036       0.264      -5.501        0.105     139.054       0.660
+max       100.000         0.996         0.989  5552917.000       0.999             0.999       1.000       3.744        0.967     242.903       1.000
+
+Recompte de cançons per gènere (ascendent):
+genre
+A Capella            119
+Children's Music    5403
+Movie               7806
+Opera               8280
+Country             8664
+Dance               8701
+Reggae              8771
+Ska                 8874
+Reggaeton           8927
+Anime               8936
+R&B                 8992
+Blues               9023
+Soul                9089
+World               9096
+Rap                 9232
+Classical           9256
+Alternative         9263
+Rock                9272
+Hip-Hop             9295
+Folk                9299
+Children’s Music    9353
+Electronic          9377
+Pop                 9386
+Jazz                9441
+Indie               9543
+Soundtrack          9646
+Comedy              9681
+Name: count, dtype: int64
+
+============================================================
+NETEJA: DUPLICATS I NULS
+============================================================
+Eliminats 55951 duplicats per track_id (232725 -> 176774 files).
+  Imputats 1 nuls a 'track_name' amb el mode.
+
+============================================================
+COMPROVACIÓ DE RANGS
+============================================================
+[OK]   popularity: [0.000, 100.000] dins de [0, 100]
+[OK]   acousticness: [0.000, 0.996] dins de [0, 1]
+[OK]   danceability: [0.057, 0.989] dins de [0, 1]
+[OK]   energy: [0.000, 0.999] dins de [0, 1]
+[OK]   instrumentalness: [0.000, 0.999] dins de [0, 1]
+[OK]   liveness: [0.010, 1.000] dins de [0, 1]
+[OK]   speechiness: [0.022, 0.967] dins de [0, 1]
+[OK]   valence: [0.000, 1.000] dins de [0, 1]
+[OK]   loudness: [-52.457, 3.744] dins de [-60, 5]
+[OK]   tempo: [30.379, 242.903] dins de [0, 250]
+[WARN] duration_min: observat [0.256, 92.549] fora de l'esperat [0, 30]
+
+============================================================
+FILTRATGE DE GÈNERES (min_count = 1000)
+============================================================
+Gèneres descartats (1):
+  - A Capella: 119 cançons
+Total de files eliminades: 119
+
+============================================================
+CORRELACIONS ENTRE FEATURES
+============================================================
+
+Matriu de correlacions (Pearson):
+                  popularity  acousticness  danceability  duration_min  energy  instrumentalness  liveness  loudness  speechiness  tempo  valence
+popularity              1.00         -0.36          0.22          0.02    0.23             -0.15     -0.16      0.32        -0.16   0.08     0.05
+acousticness           -0.36          1.00         -0.38          0.01   -0.73              0.31      0.08     -0.69         0.17  -0.26    -0.35
+danceability            0.22         -0.38          1.00         -0.12    0.36             -0.37     -0.03      0.46         0.13   0.05     0.59
+duration_min            0.02          0.01         -0.12          1.00   -0.03              0.07      0.02     -0.04        -0.01  -0.03    -0.15
+energy                  0.23         -0.73          0.36         -0.03    1.00             -0.39      0.21      0.82         0.16   0.24     0.45
+instrumentalness       -0.15          0.31         -0.37          0.07   -0.39              1.00     -0.16     -0.50        -0.19  -0.11    -0.33
+liveness               -0.16          0.08         -0.03          0.02    0.21             -0.16      1.00      0.06         0.56  -0.06     0.01
+loudness                0.32         -0.69          0.46         -0.04    0.82             -0.50      0.06      1.00         0.00   0.25     0.43
+speechiness            -0.16          0.17          0.13         -0.01    0.16             -0.19      0.56      0.00         1.00  -0.10     0.02
+tempo                   0.08         -0.26          0.05         -0.03    0.24             -0.11     -0.06      0.25        -0.10   1.00     0.16
+valence                 0.05         -0.35          0.59         -0.15    0.45             -0.33      0.01      0.43         0.02   0.16     1.00
+
+Parelles amb |corr| >= 0.7:
+  acousticness       <-> energy              corr = -0.730
+  energy             <-> loudness            corr = +0.825
+
+CSV net guardat a: data/processed/spotify_clean.csv
+
+============================================================
+RESUM FINAL
+============================================================
+Forma del DataFrame net: (176655, 15)
+Forma de X_scaled:       (176655, 11)

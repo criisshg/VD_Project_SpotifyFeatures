@@ -19,6 +19,9 @@ interpretables sense escalar; l'escalat es retorna en memòria per als
 scripts de modelatge (PCA, t-SNE, clustering).
 """
 
+import io
+import sys
+import contextlib
 import os
 from typing import Tuple
 
@@ -265,31 +268,40 @@ def scale_features(features_df: pd.DataFrame) -> Tuple[np.ndarray, StandardScale
 
 def prepare_dataset(raw_path: str = RAW_DATA_PATH,
                     clean_path: str = CLEAN_DATA_PATH,
-                    min_genre_count: int = MIN_GENRE_COUNT
+                    min_genre_count: int = MIN_GENRE_COUNT,
+                    verbose: bool = True,
                     ) -> Tuple[pd.DataFrame, np.ndarray, StandardScaler]:
     """
     Executa el pipeline complet i retorna:
     - df_clean: DataFrame net amb valors interpretables (sense escalar).
     - X_scaled: matriu numpy de features estandarditzades.
     - scaler:   StandardScaler entrenat (per reescalar dades futures).
+
+    verbose=False suprimeix tots els prints (útil quan s'importa des d'altres scripts).
     """
-    df_raw = load_raw_data(raw_path)
-    inspect_dataset(df_raw)
+    def _run():
+        df_raw = load_raw_data(raw_path)
+        inspect_dataset(df_raw)
 
-    df = drop_duplicates_and_nulls(df_raw)
-    df = convert_duration(df)
-    check_ranges(df)
-    df = filter_minority_genres(df, min_count=min_genre_count)
+        df = drop_duplicates_and_nulls(df_raw)
+        df = convert_duration(df)
+        check_ranges(df)
+        df = filter_minority_genres(df, min_count=min_genre_count)
 
-    df_clean = df[INFO_COLUMNS + FEATURE_COLUMNS].copy()
-    correlation_report(df_clean)
+        df_clean = df[INFO_COLUMNS + FEATURE_COLUMNS].copy()
+        correlation_report(df_clean)
 
-    os.makedirs(os.path.dirname(clean_path), exist_ok=True)
-    df_clean.to_csv(clean_path, index=False)
-    print(f"\nCSV net guardat a: {clean_path}")
+        os.makedirs(os.path.dirname(clean_path), exist_ok=True)
+        df_clean.to_csv(clean_path, index=False)
+        print(f"\nCSV net guardat a: {clean_path}")
 
-    X_scaled, scaler = scale_features(df_clean[FEATURE_COLUMNS])
-    return df_clean, X_scaled, scaler
+        X_scaled, scaler = scale_features(df_clean[FEATURE_COLUMNS])
+        return df_clean, X_scaled, scaler
+
+    if verbose:
+        return _run()
+    with contextlib.redirect_stdout(io.StringIO()):
+        return _run()
 
 
 # -----------------------------
@@ -297,10 +309,29 @@ def prepare_dataset(raw_path: str = RAW_DATA_PATH,
 # -----------------------------
 
 if __name__ == "__main__":
-    df_clean, X_scaled, scaler = prepare_dataset()
+    class _Tee:
+        """Escriu simultàniament a stdout i a un buffer."""
+        def __init__(self, *streams):
+            self.streams = streams
+        def write(self, data):
+            for s in self.streams:
+                s.write(data)
+        def flush(self):
+            for s in self.streams:
+                s.flush()
 
+    buf = io.StringIO()
+    sys.stdout = _Tee(sys.__stdout__, buf)
+    df_clean, X_scaled, scaler = prepare_dataset()
     print("\n" + "=" * 60)
     print("RESUM FINAL")
     print("=" * 60)
     print(f"Forma del DataFrame net: {df_clean.shape}")
     print(f"Forma de X_scaled:       {X_scaled.shape}")
+    sys.stdout = sys.__stdout__
+
+    report_path = os.path.join("outputs", "data_massage_report.txt")
+    os.makedirs("outputs", exist_ok=True)
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write(buf.getvalue())
+    print(f"Report guardat a: {report_path}")

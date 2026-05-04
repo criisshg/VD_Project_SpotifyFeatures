@@ -109,3 +109,4 @@ python src/clustering.py       # ~10-20 min
 | `clustering_elbow.png` | Inèrcia (distància interna dels clusters) per a cada valor de k (2–12). El punt on la corba fa un colze indica el nombre de clusters òptim. |
 | `clustering_silhouette.png` | Silhouette score per a cada k. Un valor més alt indica clusters més cohesionats i separats entre ells. La barra verda marca el millor k. |
 | `clustering_tsne.png` | Projecció t-SNE de la mostra de 10.000 cançons, cada punt coloretat pel cluster que li ha assignat el K-Means. Permet veure si els clusters tenen sentit geogràficament en l'espai t-SNE. |
+

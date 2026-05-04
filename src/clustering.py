@@ -138,6 +138,21 @@ def save_cluster_labels(df_clean, labels):
     return out
 
 
+def save_multi_k_labels(df_clean, X_scaled, ks=(3, 5, 7)):
+    """Pre-calcula KMeans per a k=3, 5 i 7. Exporta un CSV amb una columna per k
+    (k3, k5, k7) amb noms de cluster C0, C1... Permet el slider de k al dashboard."""
+    out = df_clean[["track_id", "genre"]].copy()
+    for k in ks:
+        print(f"  KMeans k={k}...", end=" ", flush=True)
+        km = KMeans(n_clusters=k, random_state=RANDOM_STATE, n_init=N_INIT)
+        labels = km.fit_predict(X_scaled)
+        out[f"k{k}"] = [f"C{l}" for l in labels]
+        print("fet")
+    path = os.path.join(CSV_DIR, "cluster_multi_k.csv")
+    out.to_csv(path, index=False)
+    print(f"Saved {path}")
+
+
 def save_cluster_profiles(df_clean, labels):
     df = df_clean[FEATURE_COLUMNS].copy()
     df["cluster_id"] = labels
@@ -167,5 +182,8 @@ if __name__ == "__main__":
     plot_tsne_clusters(df_clean)
     save_cluster_labels(df_clean, labels)
     save_cluster_profiles(df_clean, labels)
+
+    print("Pre-calculant k=3, 5, 7 per al slider del dashboard...")
+    save_multi_k_labels(df_clean, X_scaled)
 
     print("[clustering] Fet. Outputs a outputs/")

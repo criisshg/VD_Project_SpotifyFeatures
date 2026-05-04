@@ -84,6 +84,8 @@ python src/clustering.py       # ~10-20 min
 | `eda_correlation_heatmap.png` | Mapa de calor amb la correlació de Pearson entre les 11 features. Les cel·les en vermell intens indiquen correlació alta (+/-). Clau per decidir quines variables eliminar abans de PCA. |
 | `eda_scatter_high_corr.png` | Scatter de les dues parelles amb correlació alta: `energy vs loudness` (+0.83) i `energy vs acousticness` (−0.73). Confirma visualment que actuen de forma redundant. |
 | `eda_scatter_popularity.png` | Scatter de `popularity` vs `danceability`, `energy` i `valence`. Permet veure si alguna d'aquestes features prediu la popularitat d'una cançó. |
+| `eda_violin_genre.png` | Violin plots de les 4 features principals per gènere. Combina boxplot i densitat: mostra la forma completa de la distribució, revelant bimodalitats i asimetries que el boxplot amaga. |
+| `eda_correlation_network.png` | Xarxa de correlació entre features: nodes = features, arestes = correlació Pearson. Gruix i opacitat = força; verd = positiva, vermell = negativa. Versió visual i llegible del heatmap. |
 
 ### PCA (`outputs/pca/figures/`)
 

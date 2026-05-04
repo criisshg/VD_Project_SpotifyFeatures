@@ -147,6 +147,95 @@ def plot_scatter_popularity(df_clean):
     print(f"Saved {path}")
 
 
+def plot_violin_genre(df_clean):
+    """
+    Violin plots de energy, danceability, valence i popularity per gènere.
+    Combina boxplot + densitat: mostra no només la mediana sinó la forma completa
+    de la distribució, revelant bimodalitat i asimetries que el boxplot amaga.
+    """
+    target_feats = ["energy", "danceability", "valence", "popularity"]
+    fig, axes = plt.subplots(2, 2, figsize=(22, 12))
+    axes = axes.flatten()
+    for i, feat in enumerate(target_feats):
+        sns.violinplot(
+            x="genre", y=feat, hue="genre", data=df_clean, ax=axes[i],
+            palette="tab20", legend=False, linewidth=0.8, inner="quartile",
+        )
+        axes[i].set_title(feat, fontsize=12, fontweight="bold")
+        axes[i].set_xlabel("")
+        axes[i].tick_params(axis="x", rotation=45)
+        for tick in axes[i].get_xticklabels():
+            tick.set_ha("right")
+    fig.suptitle("Distribució per Gènere — Violin Plots", fontsize=14, fontweight="bold")
+    plt.tight_layout()
+    path = os.path.join(FIGURES_DIR, "eda_violin_genre.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved {path}")
+
+
+def plot_correlation_network(df_clean):
+    """
+    Xarxa de correlació entre features: nodes = features, arestes = correlació Pearson.
+    Gruix i opacitat de l'aresta = força de la correlació. Color verd = positiva, vermell = negativa.
+    Més visual i llegible que el heatmap per identificar ràpidament les relacions clau.
+    """
+    import networkx as nx
+    from matplotlib.lines import Line2D
+
+    THRESHOLD = 0.3
+    corr = df_clean[FEATURE_COLUMNS].corr()
+
+    G = nx.Graph()
+    G.add_nodes_from(FEATURE_COLUMNS)
+    for i in range(len(FEATURE_COLUMNS)):
+        for j in range(i + 1, len(FEATURE_COLUMNS)):
+            c = corr.iloc[i, j]
+            if abs(c) >= THRESHOLD:
+                G.add_edge(FEATURE_COLUMNS[i], FEATURE_COLUMNS[j], weight=c)
+
+    pos = nx.circular_layout(G)
+    fig, ax = plt.subplots(figsize=(11, 11))
+    ax.set_facecolor("#f5f5f5")
+    fig.patch.set_facecolor("white")
+
+    for u, v, data in G.edges(data=True):
+        c = data["weight"]
+        color = "#1DB954" if c > 0 else "#e74c3c"
+        ax.plot(
+            [pos[u][0], pos[v][0]], [pos[u][1], pos[v][1]],
+            color=color, alpha=min(abs(c), 0.95),
+            linewidth=abs(c) * 8, solid_capstyle="round", zorder=1,
+        )
+        mid_x = (pos[u][0] + pos[v][0]) / 2
+        mid_y = (pos[u][1] + pos[v][1]) / 2
+        ax.text(mid_x, mid_y, f"{c:+.2f}", fontsize=6.5,
+                ha="center", va="center", color="#333333",
+                bbox=dict(boxstyle="round,pad=0.1", fc="white", alpha=0.7, lw=0))
+
+    nodes = nx.draw_networkx_nodes(G, pos, ax=ax, node_size=1200,
+                                   node_color="#2c3e50", alpha=0.92)
+    nodes.set_zorder(2)
+    nx.draw_networkx_labels(G, pos, ax=ax, font_size=8,
+                            font_color="white", font_weight="bold")
+
+    legend_handles = [
+        Line2D([0], [0], color="#1DB954", lw=3, label="Correlació positiva"),
+        Line2D([0], [0], color="#e74c3c", lw=3, label="Correlació negativa"),
+    ]
+    ax.legend(handles=legend_handles, loc="lower right", fontsize=9)
+    ax.set_title(
+        f"Xarxa de Correlació entre Features  (|r| ≥ {THRESHOLD})",
+        fontsize=13, fontweight="bold", pad=15,
+    )
+    ax.axis("off")
+    plt.tight_layout()
+    path = os.path.join(FIGURES_DIR, "eda_correlation_network.png")
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved {path}")
+
+
 def save_genre_profiles(df_clean):
     """
     Calcula la mitjana de cada feature per gènere i ho exporta a CSV.
@@ -167,7 +256,9 @@ if __name__ == "__main__":
 
     plot_histograms(df_clean)
     plot_boxplots_genre(df_clean)
+    plot_violin_genre(df_clean)
     plot_correlation_heatmap(df_clean)
+    plot_correlation_network(df_clean)
     plot_scatter_high_corr(df_clean)
     plot_scatter_popularity(df_clean)
     save_genre_profiles(df_clean)

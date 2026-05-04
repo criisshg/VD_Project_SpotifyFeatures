@@ -11,11 +11,11 @@ Laia Alcalde · Laia Camara · Cristina Huanca · Elena Gutiérrez · Iker Bolan
 |---|---|
 | Selecció del dataset | ✅ Fet |
 | Data massage (`src/data_massage.py`) | ✅ Fet |
-| EDA visual (`src/eda_visual.py`) | 🟡 Script creat — pendent d'executar |
-| PCA (`src/pca_analysis.py`) | 🟡 Script creat — pendent d'executar |
-| t-SNE (`src/tsne_analysis.py`) | 🟡 Script creat — pendent d'executar |
-| Clustering (`src/clustering.py`) | 🟡 Script creat — pendent d'executar |
-| Dashboard interactiu (Claude Design) | ⬜ Pendent |
+| EDA visual (`src/eda_visual.py`) | ✅ Fet — 7 figures + `genre_profiles.csv` |
+| PCA (`src/pca_analysis.py`) | ✅ Fet — scree, scatter, biplot + `pca_coords.csv` |
+| t-SNE (`src/tsne_analysis.py`) | ✅ Fet — genre, popularity + `tsne_coords.csv` |
+| Clustering (`src/clustering.py`) | ✅ Fet — elbow, silhouette, tsne + CSVs |
+| Dashboard interactiu (Claude Design) | 🔜 Següent pas |
 | Informe final | 🔄 En curs (Alex) |
 
 ---

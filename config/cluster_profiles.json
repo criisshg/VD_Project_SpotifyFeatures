@@ -1,0 +1,66 @@
+{
+  "source": "kmeans_cluster_profiles",
+  "method": "K-means over normalized acoustic features",
+  "k": 3,
+  "notes": [
+    "Cluster labels are interpretive names assigned from centroid feature values.",
+    "The numeric cluster ids are arbitrary and may change if K-means is retrained.",
+    "Use these labels only with the matching cluster model/output."
+  ],
+  "features": [
+    "energy",
+    "acousticness",
+    "speechiness",
+    "liveness",
+    "instrumentalness",
+    "popularity",
+    "danceability"
+  ],
+  "clusters": [
+    {
+      "id": "C0",
+      "label": "Spoken / Live",
+      "short_label": "spoken_live",
+      "rationale": "Very high speechiness and liveness, almost no instrumentalness, and low popularity suggest spoken, live, comedy, podcast-like, or performance-heavy tracks rather than standard songs.",
+      "centroid": {
+        "energy": 0.66,
+        "acousticness": 0.79,
+        "speechiness": 0.87,
+        "liveness": 0.73,
+        "instrumentalness": 0.0,
+        "popularity": 20,
+        "danceability": 0.56
+      }
+    },
+    {
+      "id": "C1",
+      "label": "Ambient / Instrumental",
+      "short_label": "ambient_instrumental",
+      "rationale": "Low energy, low danceability, high acousticness, and relatively high instrumentalness suggest quieter instrumental or ambient-like material.",
+      "centroid": {
+        "energy": 0.2,
+        "acousticness": 0.84,
+        "speechiness": 0.05,
+        "liveness": 0.17,
+        "instrumentalness": 0.47,
+        "popularity": 27,
+        "danceability": 0.35
+      }
+    },
+    {
+      "id": "C2",
+      "label": "Mainstream Pop / Rock",
+      "short_label": "mainstream_pop_rock",
+      "rationale": "Higher energy, higher danceability, low acousticness, low speechiness, and higher popularity suggest conventional mainstream song profiles.",
+      "centroid": {
+        "energy": 0.68,
+        "acousticness": 0.21,
+        "speechiness": 0.09,
+        "liveness": 0.2,
+        "instrumentalness": 0.08,
+        "popularity": 41,
+        "danceability": 0.61
+      }
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "source": "curated_target_profiles",
+  "method": "Each preset is a manually defined target vector over Spotify acoustic features. Tracks are ranked by weighted distance to the target profile.",
+  "distance": "weighted_l2",
+  "notes": [
+    "These presets are not clusters and are not inferred labels from the dataset.",
+    "They are explainable starting points for the Builder sliders.",
+    "For a stricter data-derived mode, use cluster centroids or genre mean profiles instead."
+  ],
+  "features": [
+    "danceability",
+    "energy",
+    "valence",
+    "acousticness",
+    "instrumentalness",
+    "speechiness",
+    "liveness",
+    "tempo"
+  ],
+  "presets": [
+    {
+      "id": "late_night_focus",
+      "title": "Late Night Focus",
+      "source": "curated",
+      "rationale": "Smooth listening profile with controlled energy, low spoken content, moderate tempo, and some acoustic or instrumental texture.",
+      "target": {
+        "danceability": 0.45,
+        "energy": 0.35,
+        "valence": 0.35,
+        "acousticness": 0.55,
+        "instrumentalness": 0.35,
+        "speechiness": 0.05,
+        "liveness": 0.1,
+        "tempo": 90
+      },
+      "weights": {
+        "danceability": 1.0,
+        "energy": 1.25,
+        "valence": 1.0,
+        "acousticness": 1.0,
+        "instrumentalness": 1.1,
+        "speechiness": 1.4,
+        "liveness": 0.8,
+        "tempo": 0.7
+      }
+    },
+    {
+      "id": "sunday_morning",
+      "title": "Sunday Morning",
+      "source": "curated",
+      "rationale": "Calm, organic profile with higher acousticness, softer energy, moderate positivity, and relaxed tempo.",
+      "target": {
+        "danceability": 0.5,
+        "energy": 0.3,
+        "valence": 0.55,
+        "acousticness": 0.75,
+        "instrumentalness": 0.15,
+        "speechiness": 0.05,
+        "liveness": 0.12,
+        "tempo": 95
+      },
+      "weights": {
+        "danceability": 0.8,
+        "energy": 1.2,
+        "valence": 1.0,
+        "acousticness": 1.4,
+        "instrumentalness": 0.8,
+        "speechiness": 1.2,
+        "liveness": 0.7,
+        "tempo": 0.7
+      }
+    },
+    {
+      "id": "workout_peak",
+      "title": "Workout Peak",
+      "source": "curated",
+      "rationale": "High-intensity profile with strong energy, high danceability, bright valence, low acousticness, and faster tempo.",
+      "target": {
+        "danceability": 0.8,
+        "energy": 0.9,
+        "valence": 0.7,
+        "acousticness": 0.05,
+        "instrumentalness": 0.05,
+        "speechiness": 0.1,
+        "liveness": 0.15,
+        "tempo": 140
+      },
+      "weights": {
+        "danceability": 1.3,
+        "energy": 1.5,
+        "valence": 1.0,
+        "acousticness": 0.8,
+        "instrumentalness": 0.5,
+        "speechiness": 0.7,
+        "liveness": 0.5,
+        "tempo": 1.2
+      }
+    },
+    {
+      "id": "rainy_melancholy",
+      "title": "Rainy Melancholy",
+      "source": "curated",
+      "rationale": "Reflective profile with lower valence, softer energy, more acoustic texture, and low spoken content.",
+      "target": {
+        "danceability": 0.35,
+        "energy": 0.3,
+        "valence": 0.2,
+        "acousticness": 0.7,
+        "instrumentalness": 0.2,
+        "speechiness": 0.05,
+        "liveness": 0.12,
+        "tempo": 85
+      },
+      "weights": {
+        "danceability": 0.8,
+        "energy": 1.1,
+        "valence": 1.4,
+        "acousticness": 1.2,
+        "instrumentalness": 0.8,
+        "speechiness": 1.0,
+        "liveness": 0.6,
+        "tempo": 0.7
+      }
+    },
+    {
+      "id": "party_euphoria",
+      "title": "Party Euphoria",
+      "source": "curated",
+      "rationale": "Upbeat social profile with high danceability, high energy, bright valence, and low acousticness.",
+      "target": {
+        "danceability": 0.88,
+        "energy": 0.85,
+        "valence": 0.8,
+        "acousticness": 0.08,
+        "instrumentalness": 0.03,
+        "speechiness": 0.12,
+        "liveness": 0.18,
+        "tempo": 124
+      },
+      "weights": {
+        "danceability": 1.5,
+        "energy": 1.3,
+        "valence": 1.2,
+        "acousticness": 0.8,
+        "instrumentalness": 0.5,
+        "speechiness": 0.6,
+        "liveness": 0.5,
+        "tempo": 1.0
+      }
+    },
+    {
+      "id": "cinematic_drift",
+      "title": "Cinematic Drift",
+      "source": "curated",
+      "rationale": "Soundtrack-like profile with low speechiness, higher instrumentalness, moderate energy, and broader atmosphere.",
+      "target": {
+        "danceability": 0.3,
+        "energy": 0.45,
+        "valence": 0.35,
+        "acousticness": 0.55,
+        "instrumentalness": 0.65,
+        "speechiness": 0.03,
+        "liveness": 0.1,
+        "tempo": 100
+      },
+      "weights": {
+        "danceability": 0.8,
+        "energy": 0.9,
+        "valence": 0.8,
+        "acousticness": 1.0,
+        "instrumentalness": 1.5,
+        "speechiness": 1.4,
+        "liveness": 0.6,
+        "tempo": 0.6
+      }
+    }
+  ]
+}

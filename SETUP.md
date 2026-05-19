@@ -46,15 +46,30 @@ python src/correlation_network.py   # xarxa Plotly per al dashboard
 Els outputs (figures i CSVs) es generen automàticament a `outputs/`.
 `clustering.py` necessita que `tsne_analysis.py` s'hagi executat abans.
 
-## 6. Obrir el dashboard
+## 6. Arrencar el dashboard
 
-El dashboard final viu a `design/`. Per obrir-lo, simplement obre el fitxer al navegador:
+El frontend viu a `dashboard/` (bundle HTML standalone generat amb Claude Design)
+i el serveix una API Flask lleugera definida a [src/dashboard_api.py](src/dashboard_api.py).
+
+Des de l'arrel del repo, amb l'entorn activat:
 
 ```bash
-open "design/Featurefy Dashboard (standalone).html"
+python src/dashboard_api.py
 ```
 
-És una versió autocontinguda, preparada per ser connectada via API amb els outputs dels scripts.
+Després obre [http://localhost:5001/](http://localhost:5001/) al navegador.
+
+> Port **5001**, no 5000 — el 5000 està ocupat per l'AirPlay Receiver a macOS.
+
+L'API carrega a memòria els CSV/JSON ja generats pel pipeline (pas 5) i els
+exposa als endpoints `/api/kpis`, `/api/tracks`, `/api/tsne`, `/api/pca`,
+`/api/clusters?k={3,5,7}`, `/api/genre-profiles`, `/api/correlation`,
+`/api/cluster-profiles` i `/api/presets`. El fitxer pont
+[dashboard/dashboard-boot.js](dashboard/dashboard-boot.js) fa fetch a aquests
+endpoints i injecta les dades reals dins del bundle (`window.DATA`).
+
+> Si el bundle (`dashboard/index.html`) es regenera des de Claude Design, cal
+> tornar a injectar el script pont — veure [dashboard/README.md](dashboard/README.md).
 
 ## 7. Desactivar l'entorn en acabar
 
@@ -77,4 +92,6 @@ La propera vegada que obris el projecte, torna al pas 2.
 ## Requisits
 
 - Python 3.10+
-- Dependències (a `requirements.txt`): `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`, `networkx`, `plotly`
+- Dependències (a `requirements.txt`):
+  - **Pipeline d'anàlisi**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`, `networkx`, `plotly`
+  - **Servidor del dashboard**: `flask>=3.0`, `flask-compress>=1.14`

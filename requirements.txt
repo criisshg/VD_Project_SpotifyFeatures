@@ -5,3 +5,5 @@ matplotlib
 seaborn
 networkx
 plotly
+flask>=3.0
+flask-compress>=1.14

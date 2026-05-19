@@ -2,3 +2,9 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# Helpers exploratoris del bundle de Claude Design — derivables, no els
+# necessitem al repo. Veure dashboard/README.md.
+dashboard/_unpacked/
+dashboard/_unpack.py
+dashboard/_inject.py

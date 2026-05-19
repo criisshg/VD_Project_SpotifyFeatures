@@ -11,12 +11,14 @@ Laia Alcalde · Laia Camara · Cristina Huanca · Elena Gutiérrez · Iker Bolan
 |---|---|
 | Selecció del dataset | ✅ Fet |
 | Data massage (`src/data_massage.py`) | ✅ Fet |
-| EDA visual (`src/eda_visual.py`) | ✅ Fet — 7 figures + `genre_profiles.csv` |
+| EDA visual (`src/eda_visual.py`) | ✅ Fet — 7 figures + `genre_profiles.csv` + `correlation_matrix.csv` |
 | PCA (`src/pca_analysis.py`) | ✅ Fet — scree, scatter, biplot + `pca_coords.csv` |
 | t-SNE (`src/tsne_analysis.py`) | ✅ Fet — genre, popularity + `tsne_coords.csv` |
-| Clustering (`src/clustering.py`) | ✅ Fet — elbow, silhouette, tsne + CSVs |
-| Dashboard interactiu (Claude Design) | 🔜 Següent pas |
-| Informe final | 🔄 En curs (Alex) |
+| Clustering (`src/clustering.py`) | ✅ Fet — elbow, silhouette, tsne + multi-k CSV |
+| Xarxa de correlació (`src/correlation_network.py`) | ✅ Fet — xarxa Plotly per al dashboard |
+| Dashboard Featurefy (`design/`) | ✅ v1 standalone — preparat per connexió API |
+| Connexió Dashboard ↔ scripts (API) | 🔜 Següent pas |
+| Informe final | 🔄 En curs |
 
 ---
 
@@ -45,7 +47,7 @@ Tres hipòtesis a respondre visualment:
   - `energy ↔ acousticness` correlació **−0.73** → idem.
   - `duration_min` arriba a 92.5 min (Comedy/Soundtrack) → considerar clipping abans de PCA/t-SNE.
 
-Tots els scripts nous importaran d'aquí:
+Tots els scripts nous importen d'aquí:
 
 ```python
 from src.data_massage import prepare_dataset
@@ -56,99 +58,90 @@ df_clean, X_scaled, scaler = prepare_dataset()
 
 ## Procés complet fins a l'entrega
 
-### Fase 1 — EDA Visual (`src/eda_visual.py`)
+### Fase 1 — EDA Visual (`src/eda_visual.py`) ✅
 
-Objectiu: entendre les distribucions i seleccionar quines features protagonitzen el dashboard.
+7 figures a `outputs/eda/figures/`:
 
-Gràfiques a generar i exportar a `figures/`:
+- Histogrames + KDE per a cada feature numèrica.
+- Boxplots per gènere de `energy`, `danceability`, `valence`, `popularity`.
+- Heatmap de correlació Pearson.
+- Scatter plots de les parelles amb alta correlació (`energy vs loudness`, `energy vs acousticness`).
+- Scatter `popularity` vs `danceability` / `energy` / `valence`.
+- Violin plots de les 4 features principals per gènere.
+- Xarxa de correlació en format estàtic (PNG).
 
-- Histogrames / KDE per a cada feature numèrica (detectar skew, outliers).
-- Boxplots per gènere de: `energy`, `danceability`, `valence`, `popularity`.
-- Heatmap de correlació Pearson entre les 11 features.
-- Scatter plots de les parelles amb alta correlació: `energy vs loudness`, `energy vs acousticness`.
-- Scatter `popularity vs danceability`, `popularity vs valence`, `popularity vs energy`.
+Outputs CSV: `correlation_matrix.csv`, `genre_profiles.csv`.
 
 ---
 
-### Fase 2 — PCA (`src/pca_analysis.py`)
-
-Objectiu: reduir dimensions i entendre quines features expliquen la variància.
+### Fase 2 — PCA (`src/pca_analysis.py`) ✅
 
 - Scree plot (variància explicada per component).
-- Biplot PC1–PC2 amb vectors de loading de les features.
-- Plot 2D colorat per gènere → veure si els gèneres se separen.
-- Interpretar PC1 i PC2 pels loadings (per exemple si PC1 captura energy/loudness).
-- **Exportar:** `data/processed/pca_coords.csv` (PC1, PC2, PC3 per fila + gènere).
+- Biplot PC1–PC2 amb vectors de loading.
+- Scatter PC1–PC2 colorat per gènere.
+- **Output:** `outputs/pca/pca_coords.csv` (PC1, PC2, PC3 per fila + gènere).
 
 ---
 
-### Fase 3 — t-SNE (`src/tsne_analysis.py`)
+### Fase 3 — t-SNE (`src/tsne_analysis.py`) ✅
 
-Objectiu: visualització no lineal per detectar agrupacions reals.
-
-- t-SNE sobre `X_scaled` (perplexity ~30–50, max_iter ≥ 1000).
-- Plot 2D colorat per gènere → comprovar hipòtesi 3.
-- Plot 2D colorat per `popularity` en gradient → comprovar hipòtesi 1.
-- Comparar amb PCA: on t-SNE agrupa diferent hi ha estructura local interessant.
-- **Exportar:** `data/processed/tsne_coords.csv` (dim1, dim2 per fila + gènere).
+- t-SNE sobre `X_scaled` (perplexity ~30–50, max_iter ≥ 1000) sobre mostra de 10k cançons.
+- Plot 2D colorat per gènere.
+- Plot 2D colorat per `popularity` en gradient.
+- **Output:** `outputs/tsne/tsne_coords.csv` (dim1, dim2 per fila + gènere).
 
 ---
 
-### Fase 4 — Clustering (`src/clustering.py`)
+### Fase 4 — Clustering (`src/clustering.py`) ✅
 
-Objectiu: trobar grups naturals de cançons (hipòtesi 2).
-
-- K-Means: elbow method per triar k + silhouette score.
-- DBSCAN (opcional si hi ha forma irregular als clusters).
-- Visualitzar clusters sobre l'espai t-SNE (color = cluster).
-- Caracteritzar cada cluster: mitjana de features per cluster → "perfil sonor".
-- Comprovar si els clusters corresponen a gèneres o si creuen fronteres.
-- **Exportar:** `data/processed/cluster_labels.csv` i `data/processed/genre_profiles.csv`.
+- K-Means multi-k (k = 2..12) per alimentar el slider del dashboard.
+- Elbow method + silhouette score.
+- Visualització dels clusters sobre l'espai t-SNE.
+- Caracterització de cada cluster per centroide (perfil sonor).
+- **Outputs:** `outputs/clustering/cluster_labels.csv`, `cluster_multi_k.csv`, `cluster_profiles.csv`.
+- **Interpretació humana:** `config/cluster_profiles.json` (Spoken/Live, Ambient/Instrumental, Mainstream Pop/Rock).
 
 ---
 
-### Fase 5 — Dashboard interactiu (Claude Design)
+### Fase 5 — Xarxa de correlació Plotly (`src/correlation_network.py`) ✅
 
-Un cop tenim totes les gràfiques i CSVs generats, el dashboard s'assemblarà amb **Claude Design** (claude.ai) com a entrega final.
-
-**Arquitectura: 3 panells corresponents a les 3 hipòtesis**
-
-**Panell 1 — "Popularitat i features"**
-- Selector de feature (danceability, energy, valence…).
-- Scatter plot feature seleccionada vs popularity amb línia de tendència.
-- Top-10 cançons per popularitat dins del filtre.
-
-**Panell 2 — "L'espai sonor" (PCA / t-SNE)**
-- Plot interactiu 2D (toggle PCA ↔ t-SNE).
-- Color per gènere o cluster (toggle).
-- Hover: nom de la cançó, artista, features principals.
-- Filtre per gènere per destacar subconjunts.
-
-**Panell 3 — "Perfil per gènere"**
-- Radar chart: perfil mitjà de features per gènere seleccionat.
-- Comparació de 2 gèneres en paral·lel.
-- Distribució de popularitat per gènere.
-
-**Dades que el dashboard necessitarà:**
-
-| Fitxer | Contingut | Panell |
-|---|---|---|
-| `data/processed/spotify_clean.csv` | Dataset complet net | Tots |
-| `data/processed/pca_coords.csv` | PC1, PC2, PC3 + gènere + cluster | 2 |
-| `data/processed/tsne_coords.csv` | dim1, dim2 + gènere + cluster | 2 |
-| `data/processed/cluster_labels.csv` | track_id + cluster_id + perfil | 2 i 3 |
-| `data/processed/genre_profiles.csv` | Mitjana de features per gènere | 3 |
-
-**Com usar Claude Design:**
-1. Tenir tots els CSVs de `data/processed/` generats.
-2. Obrir claude.ai → nou projecte → adjuntar els CSVs.
-3. Prompt: *"Crea un dashboard interactiu HTML amb Plotly que mostri els tres panells descrits, usant les dades dels CSVs adjunts. Paleta Spotify: verd `#1DB954`, fons fosc, responsive, tooltips."*
-4. Iterar sobre el disseny fins tenir el resultat desitjat.
-5. Exportar `dashboard/index.html` com a entrega final.
+Xarxa interactiva de correlacions Pearson entre features (nodes = features, arestes = correlació amb gruix/color). Pensada per a la secció **/05** del dashboard.
 
 ---
 
-## Estructura de fitxers objectiu
+### Fase 6 — Dashboard Featurefy (`design/`) ✅ v1
+
+El dashboard es desenvolupa a `design/` editant directament l'HTML via Claude Design.
+
+Fitxers actuals:
+
+- `Featurefy Dashboard.html` — versió de treball.
+- `Featurefy Dashboard (standalone).html` — versió completa autocontinguda.
+- `Featurefy Dashboard - standalone source.html` — source net.
+
+**Seccions previstes:**
+
+1. **Builder** — Playlist personalitzable amb sliders per feature. Targets a `config/playlist_presets.json`, ranking per distància L2 ponderada.
+2. **Space** — Projecció PCA / t-SNE (toggle), acolorida per cluster o gènere. Slider de k per al clustering.
+3. **Radar de gèneres** — Perfil mitjà de features per gènere, comparació en paral·lel.
+4. **Graf de correlació** — Xarxa Plotly interactiva (Fase 5).
+5. **Vinil** — Visualització compacta dels gèneres principals.
+
+---
+
+### Fase 7 — Connexió Dashboard ↔ scripts (API) 🔜
+
+Arquitectura prevista:
+
+```
+src/*.py  →  outputs/*.csv + config/*.json  →  API lleugera  →  dashboard HTML
+```
+
+Regenerar clusters o t-SNE només requereix re-executar els scripts; el dashboard s'actualitza sense tocar HTML.
+
+---
+
+## Estructura de fitxers objectiu (real)
 
 ```
 VD_Project_SpotifyFeatures/
@@ -156,22 +149,29 @@ VD_Project_SpotifyFeatures/
 │   ├── raw/
 │   │   └── SpotifyFeatures.csv          # mai modificar
 │   └── processed/
-│       ├── spotify_clean.csv            # ✅ fet
-│       ├── pca_coords.csv               # ⬜ pendent fase 2
-│       ├── tsne_coords.csv              # ⬜ pendent fase 3
-│       ├── cluster_labels.csv           # ⬜ pendent fase 4
-│       └── genre_profiles.csv           # ⬜ pendent fase 4
+│       └── spotify_clean.csv            # ✅
 ├── src/
-│   ├── data_massage.py                  # ✅ fet
-│   ├── eda_visual.py                    # ⬜ pendent fase 1
-│   ├── pca_analysis.py                  # ⬜ pendent fase 2
-│   ├── tsne_analysis.py                 # ⬜ pendent fase 3
-│   └── clustering.py                    # ⬜ pendent fase 4
-├── figures/                             # imatges exportades per a l'informe
-├── dashboard/
-│   └── index.html                       # ⬜ entrega final (Claude Design)
-├── PLAN.md                              # aquest fitxer
+│   ├── data_massage.py                  # ✅
+│   ├── eda_visual.py                    # ✅
+│   ├── pca_analysis.py                  # ✅
+│   ├── tsne_analysis.py                 # ✅
+│   ├── clustering.py                    # ✅
+│   └── correlation_network.py           # ✅
+├── outputs/
+│   ├── eda/                             # ✅
+│   ├── pca/                             # ✅
+│   ├── tsne/                            # ✅
+│   └── clustering/                      # ✅
+├── config/
+│   ├── cluster_profiles.json            # ✅ etiquetes dels clusters
+│   └── playlist_presets.json            # ✅ targets per al Builder
+├── design/
+│   ├── Featurefy Dashboard.html                     # ✅ v1
+│   ├── Featurefy Dashboard (standalone).html        # ✅ v1
+│   └── Featurefy Dashboard - standalone source.html # ✅ v1
+├── PLAN.md
 ├── README.md
+├── SETUP.md
 └── VD Proyecto Spotify.pdf
 ```
 
@@ -180,5 +180,6 @@ VD_Project_SpotifyFeatures/
 ## Dependències
 
 ```bash
-pip install pandas numpy scikit-learn matplotlib seaborn plotly
+pip install -r requirements.txt
+# pandas, numpy, scikit-learn, matplotlib, seaborn, networkx, plotly
 ```

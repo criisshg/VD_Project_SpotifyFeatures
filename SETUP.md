@@ -35,21 +35,34 @@ pip install -r requirements.txt
 Sempre des de l'arrel del projecte (no des de `src/`):
 
 ```bash
-python src/eda_visual.py       # ~1 min
-python src/pca_analysis.py     # ~1 min
-python src/tsne_analysis.py    # ~2-4 min
-python src/clustering.py       # ~10-20 min
+python src/data_massage.py          # genera data/processed/spotify_clean.csv
+python src/eda_visual.py            # ~1 min
+python src/pca_analysis.py          # ~1 min
+python src/tsne_analysis.py         # ~2-4 min
+python src/clustering.py            # ~10-20 min
+python src/correlation_network.py   # xarxa Plotly per al dashboard
 ```
 
 Els outputs (figures i CSVs) es generen automàticament a `outputs/`.
+`clustering.py` necessita que `tsne_analysis.py` s'hagi executat abans.
 
-## 6. Desactivar l'entorn en acabar
+## 6. Obrir el dashboard
+
+El dashboard final viu a `design/`. Per obrir-lo, simplement obre el fitxer al navegador:
+
+```bash
+open "design/Featurefy Dashboard (standalone).html"
+```
+
+És una versió autocontinguda, preparada per ser connectada via API amb els outputs dels scripts.
+
+## 7. Desactivar l'entorn en acabar
 
 ```bash
 deactivate
 ```
 
-## 7. Alliberar espai (opcional)
+## 8. Alliberar espai (opcional)
 
 Si vols recuperar l'espai en disc que ocupen els paquetes instal·lats:
 
@@ -64,4 +77,4 @@ La propera vegada que obris el projecte, torna al pas 2.
 ## Requisits
 
 - Python 3.10+
-- Les dependències estan a `requirements.txt`: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`
+- Dependències (a `requirements.txt`): `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`, `networkx`, `plotly`

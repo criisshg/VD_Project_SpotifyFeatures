@@ -28,7 +28,9 @@
   try {
     const [
       tracks, tsne, pca, clustersK3, clustersK5, clustersK7,
-      genreProfiles, correlation, clusterProfilesJson, presetsJson, kpis,
+      genreProfiles, correlation,
+      profilesK3, profilesK5, profilesK7,
+      presetsJson, kpis,
     ] = await Promise.all([
       getJSON('/api/tracks'),
       getJSON('/api/tsne'),
@@ -38,13 +40,17 @@
       getJSON('/api/clusters?k=7'),
       getJSON('/api/genre-profiles'),
       getJSON('/api/correlation'),
-      getJSON('/api/cluster-profiles'),
+      getJSON('/api/cluster-profiles?k=3'),
+      getJSON('/api/cluster-profiles?k=5'),
+      getJSON('/api/cluster-profiles?k=7'),
       getJSON('/api/presets'),
       getJSON('/api/kpis'),
     ]);
     api = {
       tracks, tsne, pca, clustersK3, clustersK5, clustersK7,
-      genreProfiles, correlation, clusterProfilesJson, presetsJson, kpis,
+      genreProfiles, correlation,
+      profilesByK: { 3: profilesK3, 5: profilesK5, 7: profilesK7 },
+      presetsJson, kpis,
     };
   } catch (err) {
     setStatus('API error: ' + err.message);
@@ -137,11 +143,15 @@
     tracksShort.reduce((acc, t) => { acc[t.g] = (acc[t.g] || 0) + 1; return acc; }, {}),
   );
 
-  // 8. clusterProfiles aplanat (sample bundle era {cluster_id: int, ...features llargues}).
-  const clusterProfilesFlat = (api.clusterProfilesJson.clusters || []).map((c, idx) => ({
-    cluster_id: idx,
-    ...c.centroid,
-  }));
+  // 8. clusterProfiles aplanat per al K actiu (per defecte k=3). Forma esperada
+  //    pel fallback de renderClusterCards: {cluster_id: int, ...features llargues}.
+  //    El listener del slider (pas 13) mutarà aquest array quan canviï K.
+  const flattenProfiles = (profilesResp) =>
+    (profilesResp.clusters || []).map((c, idx) => ({
+      cluster_id: idx,
+      ...c.centroid,
+    }));
+  const clusterProfilesFlat = flattenProfiles(api.profilesByK[3]);
 
   // 9. Llista de gèneres distintes (ordenada com al bundle: alfabètica).
   const genresList = Array.from(new Set(tracksShort.map(t => t.g))).sort();
@@ -173,11 +183,29 @@
   }
   Object.assign(window.DATA, newData);
   window.PLAYLIST_PRESETS = api.presetsJson;
-  window.CLUSTER_PROFILES = api.clusterProfilesJson;
-  window.PRECOMPUTED_CORR = {
-    features: api.correlation.features,
-    matrix: api.correlation.matrix,
+  window.CLUSTER_PROFILES = api.profilesByK[3];
+  window.__CLUSTER_PROFILES_BY_K = api.profilesByK;
+
+  // PRECOMPUTED_CORR: el FeatureGraph fa corrMatrix[a][b] amb claus CURTES
+  // (FEATS[i].key). Cal transformar {features, matrix} → objecte anidat.
+  const longToShort = {
+    popularity: 'p', acousticness: 'ac', danceability: 'da',
+    duration_min: 'du', energy: 'en', instrumentalness: 'ins',
+    liveness: 'li', loudness: 'lo', speechiness: 'sp',
+    tempo: 'te', valence: 'va',
   };
+  const fLong = api.correlation.features;
+  const corrObj = {};
+  fLong.forEach((a, i) => {
+    const aShort = longToShort[a];
+    if (!aShort) return;
+    corrObj[aShort] = {};
+    fLong.forEach((b, j) => {
+      const bShort = longToShort[b];
+      if (bShort) corrObj[aShort][bShort] = api.correlation.matrix[i][j];
+    });
+  });
+  window.PRECOMPUTED_CORR = corrObj;
 
   // 12. Header stats (l'app.js ho fa al seu boot, però aquí el saltem).
   const setText = (id, val) => {
@@ -207,7 +235,25 @@
     return;
   }
 
-  // 14. Amagar l'indicador de càrrega del bundler.
+  // 14. Sincronitzar profiles quan canvia el slider K. El listener corre en
+  //     fase de capture per assegurar que window.CLUSTER_PROFILES i
+  //     D.clusterProfiles estan actualitzats ABANS que el listener intern
+  //     d'app.js cridi renderClusterCards().
+  document.querySelectorAll('#k-slider-track .stop').forEach(stop => {
+    stop.addEventListener('click', () => {
+      const k = parseInt(stop.dataset.k, 10);
+      const profs = window.__CLUSTER_PROFILES_BY_K[k];
+      if (!profs) return;
+      window.CLUSTER_PROFILES = profs;
+      // Mutar D.clusterProfiles in-place: l'app.js manté la referència via `const D = window.DATA`.
+      window.DATA.clusterProfiles.length = 0;
+      profs.clusters.forEach((c, idx) => {
+        window.DATA.clusterProfiles.push({ cluster_id: idx, ...c.centroid });
+      });
+    }, true);
+  });
+
+  // 15. Amagar l'indicador de càrrega del bundler.
   const loading = document.getElementById('__bundler_loading');
   if (loading) loading.remove();
 })();

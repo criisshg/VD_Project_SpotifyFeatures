@@ -63,10 +63,12 @@ Després obre [http://localhost:5001/](http://localhost:5001/) al navegador.
 
 L'API carrega a memòria els CSV/JSON ja generats pel pipeline (pas 5) i els
 exposa als endpoints `/api/kpis`, `/api/tracks`, `/api/tsne`, `/api/pca`,
-`/api/clusters?k={3,5,7}`, `/api/genre-profiles`, `/api/correlation`,
-`/api/cluster-profiles` i `/api/presets`. El fitxer pont
+`/api/clusters?k={3,5,7}`, `/api/cluster-profiles?k={3,5,7}` (centroides
+de cada cluster amb labels semàntics per k=3 i computats on-the-fly per k=5/7),
+`/api/genre-profiles`, `/api/correlation` i `/api/presets`. El fitxer pont
 [dashboard/dashboard-boot.js](dashboard/dashboard-boot.js) fa fetch a aquests
-endpoints i injecta les dades reals dins del bundle (`window.DATA`).
+endpoints, mapeja les claus llargues dels CSV a les curtes que espera el
+bundle, i muta `window.DATA` in-place per arrencar les visualitzacions.
 
 > Si el bundle (`dashboard/index.html`) es regenera des de Claude Design, cal
 > tornar a injectar el script pont — veure [dashboard/README.md](dashboard/README.md).

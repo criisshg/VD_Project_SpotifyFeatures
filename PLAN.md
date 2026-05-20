@@ -16,8 +16,8 @@ Laia Alcalde · Laia Camara · Cristina Huanca · Elena Gutiérrez · Iker Bolan
 | t-SNE (`src/tsne_analysis.py`) | ✅ Fet — genre, popularity + `tsne_coords.csv` |
 | Clustering (`src/clustering.py`) | ✅ Fet — elbow, silhouette, tsne + multi-k CSV |
 | Xarxa de correlació (`src/correlation_network.py`) | ✅ Fet — xarxa Plotly per al dashboard |
-| Dashboard Featurefy (`design/`) | ✅ v1 standalone — preparat per connexió API |
-| Connexió Dashboard ↔ scripts (API) | 🔜 Següent pas |
+| Dashboard Featurefy (`dashboard/`) | ✅ Fet — bundle de Claude Design servit per Flask |
+| Connexió Dashboard ↔ scripts (API) | ✅ Fet — `src/dashboard_api.py` + `dashboard-boot.js` |
 | Informe final | 🔄 En curs |
 
 ---
@@ -109,35 +109,36 @@ Xarxa interactiva de correlacions Pearson entre features (nodes = features, ares
 
 ---
 
-### Fase 6 — Dashboard Featurefy (`design/`) ✅ v1
+### Fase 6 — Dashboard Featurefy (`dashboard/`) ✅
 
-El dashboard es desenvolupa a `design/` editant directament l'HTML via Claude Design.
+El dashboard es genera amb **Claude Design** com a bundle standalone autocontingut. Els fitxers es guarden a `dashboard/`:
 
-Fitxers actuals:
+- `dashboard/index.html` — bundle de Claude Design amb manifest gzipped i base64 (CSS, fonts, Plotly i app.js dins).
+- `dashboard/dashboard-boot.js` — script pont que substitueix les dades sample del bundle per les reals que serveix l'API.
+- `dashboard/README.md` — documentació de la carpeta i workflow de regeneració.
 
-- `Featurefy Dashboard.html` — versió de treball.
-- `Featurefy Dashboard (standalone).html` — versió completa autocontinguda.
-- `Featurefy Dashboard - standalone source.html` — source net.
-
-**Seccions previstes:**
+**Seccions del dashboard:**
 
 1. **Builder** — Playlist personalitzable amb sliders per feature. Targets a `config/playlist_presets.json`, ranking per distància L2 ponderada.
-2. **Space** — Projecció PCA / t-SNE (toggle), acolorida per cluster o gènere. Slider de k per al clustering.
-3. **Radar de gèneres** — Perfil mitjà de features per gènere, comparació en paral·lel.
-4. **Graf de correlació** — Xarxa Plotly interactiva (Fase 5).
-5. **Vinil** — Visualització compacta dels gèneres principals.
+2. **Vinyl** — Visualització polar dels gèneres principals.
+3. **Space** — Projecció PCA / t-SNE (toggle), acolorida per cluster o gènere. Slider K = {3, 5, 7} per al clustering.
+4. **Radar de gèneres** — Perfil mitjà de features per gènere, comparació en paral·lel.
+5. **Graf de correlació** — Xarxa Plotly interactiva (Fase 5).
 
 ---
 
-### Fase 7 — Connexió Dashboard ↔ scripts (API) 🔜
+### Fase 7 — Connexió Dashboard ↔ scripts (API) ✅
 
-Arquitectura prevista:
+Arquitectura final:
 
 ```
-src/*.py  →  outputs/*.csv + config/*.json  →  API lleugera  →  dashboard HTML
+src/*.py  →  outputs/*.csv + config/*.json  →  API Flask  →  dashboard HTML
+                                              (src/dashboard_api.py)
 ```
 
-Regenerar clusters o t-SNE només requereix re-executar els scripts; el dashboard s'actualitza sense tocar HTML.
+`src/dashboard_api.py` carrega tots els CSV/JSON una sola vegada a l'arrencada i exposa 9 endpoints (`/api/kpis`, `/api/tracks`, `/api/tsne`, `/api/pca`, `/api/clusters?k={3,5,7}`, `/api/cluster-profiles?k={3,5,7}`, `/api/genre-profiles`, `/api/correlation`, `/api/presets`). El bridge `dashboard/dashboard-boot.js` fa fetch dels endpoints, mapeja les claus llargues dels CSV a les curtes que espera el bundle (`track_id→tid`, `acousticness→ac`, …) i muta `window.DATA` in-place.
+
+Regenerar clusters o t-SNE només requereix re-executar els scripts i reiniciar el servidor Flask; no cal tocar HTML. Veure [SETUP.md](SETUP.md) per a les instruccions d'execució.
 
 ---
 
@@ -156,7 +157,8 @@ VD_Project_SpotifyFeatures/
 │   ├── pca_analysis.py                  # ✅
 │   ├── tsne_analysis.py                 # ✅
 │   ├── clustering.py                    # ✅
-│   └── correlation_network.py           # ✅
+│   ├── correlation_network.py           # ✅
+│   └── dashboard_api.py                 # ✅ API Flask + servidor del dashboard
 ├── outputs/
 │   ├── eda/                             # ✅
 │   ├── pca/                             # ✅
@@ -165,10 +167,10 @@ VD_Project_SpotifyFeatures/
 ├── config/
 │   ├── cluster_profiles.json            # ✅ etiquetes dels clusters
 │   └── playlist_presets.json            # ✅ targets per al Builder
-├── design/
-│   ├── Featurefy Dashboard.html                     # ✅ v1
-│   ├── Featurefy Dashboard (standalone).html        # ✅ v1
-│   └── Featurefy Dashboard - standalone source.html # ✅ v1
+├── dashboard/
+│   ├── index.html                       # ✅ bundle de Claude Design
+│   ├── dashboard-boot.js                # ✅ pont API ↔ bundle
+│   └── README.md                        # ✅ docs de la carpeta
 ├── PLAN.md
 ├── README.md
 ├── SETUP.md
@@ -181,5 +183,6 @@ VD_Project_SpotifyFeatures/
 
 ```bash
 pip install -r requirements.txt
-# pandas, numpy, scikit-learn, matplotlib, seaborn, networkx, plotly
+# Pipeline:  pandas, numpy, scikit-learn, matplotlib, seaborn, networkx, plotly
+# Dashboard: flask>=3.0, flask-compress>=1.14
 ```

@@ -30,6 +30,7 @@ VD_Project_SpotifyFeatures/
 │   ├── tsne_analysis.py                 # Visualització t-SNE
 │   ├── clustering.py                    # Clustering K-Means (multi-k)
 │   ├── correlation_network.py           # Xarxa Plotly de correlacions Pearson
+│   ├── dashboard_api.py                 # API Flask + servidor del dashboard
 │   └── README.md                        # Documentació de data_massage.py
 │
 ├── outputs/
@@ -54,10 +55,9 @@ VD_Project_SpotifyFeatures/
 │   ├── playlist_presets.json            # Targets predefinits per al Builder
 │   └── README.md
 │
-├── design/                              # Dashboard Featurefy
-│   ├── Featurefy Dashboard.html                     # Versió de treball
-│   ├── Featurefy Dashboard (standalone).html        # Versió completa autocontinguda
-│   ├── Featurefy Dashboard - standalone source.html # Source net
+├── dashboard/                           # Dashboard Featurefy (frontend servit per Flask)
+│   ├── index.html                       # Bundle standalone de Claude Design
+│   ├── dashboard-boot.js                # Pont entre l'API i el bundle
 │   └── README.md
 │
 ├── PLAN.md                              # Pla del projecte i roadmap del dashboard
@@ -88,17 +88,18 @@ python src/correlation_network.py   # xarxa Plotly per al dashboard
 
 ---
 
-## Dashboard Featurefy (`design/`)
+## Dashboard Featurefy (`dashboard/`)
 
-El dashboard final viu a `design/Featurefy Dashboard (standalone).html`. És una versió autocontinguda i preparada per ser **connectada via API** amb els outputs dels scripts:
+El dashboard es genera amb **Claude Design** com a bundle HTML standalone i el serveix una API Flask lleugera ([src/dashboard_api.py](src/dashboard_api.py)). L'arquitectura és:
 
 ```
-src/*.py  →  outputs/*.csv + config/*.json  →  API lleugera  →  dashboard HTML
+src/*.py  →  outputs/*.csv + config/*.json  →  API Flask  →  dashboard HTML
+                                              (src/dashboard_api.py)
 ```
 
-Així, regenerar clusters o t-SNE només requereix re-executar els scripts; el dashboard s'actualitza sense tocar HTML.
+Regenerar clusters o t-SNE només requereix re-executar els scripts i reiniciar Flask; no cal tocar HTML. Veure [SETUP.md](SETUP.md) per arrencar-lo i [dashboard/README.md](dashboard/README.md) per al detall del contingut de la carpeta.
 
-Seccions previstes: **Builder** (playlist personalitzable amb sliders), **Space** (PCA / t-SNE acolorit per cluster), **Radar de gèneres**, **Graf de correlació** i **Vinil**.
+**Seccions:** **Builder** (playlist personalitzable amb sliders i target presets), **Vinyl** (polar per gènere), **Space** (PCA / t-SNE acolorit per cluster amb slider K = 3 / 5 / 7), **Radar de gèneres** i **Graf de correlació** (xarxa Plotly).
 
 ---
 

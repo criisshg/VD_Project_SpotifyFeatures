@@ -1128,15 +1128,6 @@ Incluir explicitamente:
 - Popularidad en Spotify puede depender de factores externos no incluidos: marketing, artista, fecha, playlists, contexto social.
 - Diferencia entre `Children's Music` y `Children’s Music` por apostrofo.
 
-### 14.10 Trabajo futuro
-
-- Gestion multi-etiqueta de generos.
-- Clipping o robust scaling para duracion.
-- Comparar K-Means con DBSCAN, Gaussian Mixtures o clustering jerarquico.
-- Incluir `key`, `mode`, `time_signature` con codificacion adecuada.
-- Analizar popularidad con modelos predictivos.
-- Anadir metadatos temporales si existieran.
-
 ---
 
 ## 15. Preguntas probables en la validacion

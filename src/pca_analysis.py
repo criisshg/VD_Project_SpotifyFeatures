@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.abspath("."))
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as pe
 import seaborn as sns
 from sklearn.decomposition import PCA
 
@@ -103,7 +104,7 @@ def plot_biplot(coords, pca, df_clean):
     color_map = dict(zip(genres, palette))
     colors = df_clean["genre"].map(color_map)
 
-    ax.scatter(coords[:, 0], coords[:, 1], c=colors, alpha=0.3, s=8, edgecolors="none")
+    ax.scatter(coords[:, 0], coords[:, 1], c=colors, alpha=0.45, s=10, edgecolors="none")
 
     scale = 3.0
     for i, feat in enumerate(FEATURE_COLUMNS):
@@ -111,30 +112,52 @@ def plot_biplot(coords, pca, df_clean):
             "",
             xy=(pca.components_[0, i] * scale, pca.components_[1, i] * scale),
             xytext=(0, 0),
-            arrowprops=dict(arrowstyle="->", color="#333333", lw=1.5),
+            arrowprops=dict(
+                arrowstyle="->",
+                color="black",
+                lw=2.2,
+                path_effects=[pe.withStroke(linewidth=4, foreground="white")],
+            ),
         )
         ax.text(
-            pca.components_[0, i] * scale * 1.1,
-            pca.components_[1, i] * scale * 1.1,
+            pca.components_[0, i] * scale * 1.15,
+            pca.components_[1, i] * scale * 1.15,
             feat,
-            fontsize=8,
-            color="#333333",
+            fontsize=10,
+            fontweight="bold",
+            color="black",
             ha="center",
+            bbox=dict(
+                boxstyle="round,pad=0.25",
+                facecolor="white",
+                alpha=0.85,
+                edgecolor="none",
+            ),
         )
 
     from matplotlib.patches import Patch
     legend_elements = [Patch(facecolor=color_map[g], label=g) for g in genres]
     ax.legend(
         handles=legend_elements,
-        bbox_to_anchor=(1.05, 1),
+        bbox_to_anchor=(1.02, 1),
         loc="upper left",
         title="Gènere",
-        fontsize=7,
-        title_fontsize=8,
+        fontsize=11,
+        title_fontsize=13,
+        markerscale=1.4,
+        labelspacing=0.6,
+        borderpad=0.8,
     )
     ax.set_xlabel("PC1")
     ax.set_ylabel("PC2")
-    ax.set_title("PCA Biplot — PC1 vs PC2 amb Loading Vectors")
+    var_2comp = pca.explained_variance_ratio_[:2].sum() * 100
+    ax.set_title(
+        f"PCA Biplot — PC1 vs PC2 amb Loading Vectors\n"
+        f"Variança Total Explicada (2 comp): {var_2comp:.2f}%",
+        fontsize=14,
+        fontweight="bold",
+        pad=15,
+    )
     plt.tight_layout()
     path = os.path.join(FIGURES_DIR, "pca_biplot.png")
     plt.savefig(path, dpi=150, bbox_inches="tight")

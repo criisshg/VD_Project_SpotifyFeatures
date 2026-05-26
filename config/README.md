@@ -1,31 +1,31 @@
-# Dashboard configuration
+# Configuració del dashboard
 
-This folder contains explicit metadata for dashboard labels that should not live as hard-coded text inside the frontend.
+Aquesta carpeta conté metadades explícites per a les etiquetes del dashboard que no haurien de viure com a text fixat al frontend.
 
 ## `cluster_profiles.json`
 
-Data-derived labels for the K-means cluster profiles used in section `03 · Space`.
+Etiquetes derivades de les dades per als perfils de clúster de K-means utilitzats a la secció `03 · Space`.
 
-The cluster ids (`C0`, `C1`, `C2`) come from the K-means output, but the human-readable labels are interpretive. They are assigned by reading the centroid feature values.
+Els identificadors dels clústers (`C0`, `C1`, `C2`) provenen de la sortida de K-means, però les etiquetes llegibles per humans són interpretatives. S'assignen llegint els valors de les features dels centroides.
 
-Current interpretation:
+Interpretació actual:
 
 - `C0` -> `Spoken / Live`
 - `C1` -> `Ambient / Instrumental`
 - `C2` -> `Mainstream Pop / Rock`
 
-Important: if K-means is retrained, the numeric cluster ids may change and these labels should be regenerated.
+Important: si es torna a entrenar K-means, els identificadors numèrics dels clústers poden canviar i aquestes etiquetes s'haurien de regenerar.
 
 ## `playlist_presets.json`
 
-Curated target profiles for section `01 · Builder`.
+Perfils objectiu curats per a la secció `01 · Builder`.
 
-These presets are not discovered clusters. They are predefined acoustic targets used to initialize the sliders and rank songs by weighted distance. This keeps the playlist titles explainable without pretending they were inferred from the dataset.
+Aquests presets no són clústers descoberts. Són objectius acústics predefinits utilitzats per inicialitzar els sliders i ordenar les cançons per distància ponderada. Això manté els títols de les playlists explicables sense fingir que s'han inferit del dataset.
 
-The recommendation flow is:
+El flux de recomanació és:
 
 ```text
-preset title -> target feature vector -> weighted L2 distance -> closest tracks
+títol del preset -> vector de features objectiu -> distància L2 ponderada -> tracks més properes
 ```
 
-For a stricter data-derived mode, create additional presets from cluster centroids or genre mean profiles and mark their `source` as `cluster_centroid` or `genre_mean`.
+Per a un mode més estricte derivat de les dades, crea presets addicionals a partir dels centroides dels clústers o dels perfils mitjans per gènere i marca'n el `source` com a `cluster_centroid` o `genre_mean`.
